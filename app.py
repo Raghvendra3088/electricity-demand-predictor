@@ -27,20 +27,18 @@ with col3:
 
 # Prediction Button
 if st.button("Predict Demand"):
-    # Organize inputs exactly how the model expects them
-    input_data = pd.DataFrame({
-        'hour': [hour],
-        'day': [day],
-        'month': [month],
-        'Sub_metering_1': [sub_1],
-        'Sub_metering_2': [sub_2],
-        'Sub_metering_3': [sub_3]
-    })
+    # Organize inputs exactly in the order the model expects, as a 2D Numpy array
+    # This bypasses strict Pandas column-name validation
+    input_array = np.array([[hour, day, month, sub_1, sub_2, sub_3]])
     
-    # Scale the inputs
-    scaled_data = scaler.transform(input_data)
-    
-    # Predict
-    prediction = model.predict(scaled_data)[0]
-    
-    st.success(f"Predicted Global Intensity: **{prediction:.2f} Amps**")
+    try:
+        # Scale the inputs
+        scaled_data = scaler.transform(input_array)
+        
+        # Predict
+        prediction = model.predict(scaled_data)[0]
+        
+        st.success(f"Predicted Global Intensity: **{prediction:.2f} Amps**")
+        
+    except Exception as e:
+        st.error(f"An error occurred during prediction: {e}")
